@@ -1,1 +1,46 @@
+import cv2
+import numpy as np
+img=cv2.imread('C:/Users/HP/Downloads/uas sample image.png')
+hsv_img=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+# burnt grass (brown)
+brown_LL=np.array([10, 100, 20])
+brown_UL=np.array([20, 255, 200])
+brown_region=cv2.inRange(hsv_img, brown_LL, brown_UL)
 
+# green grass
+green_LL=np.array([40, 40, 40])
+green_UL=np.array([70, 255, 255])
+green_region=cv2.inRange(hsv_img, green_LL, green_UL)
+
+# blue houses
+blue_LL=np.array([100, 150, 0])
+blue_UL=np.array([140, 255, 255])
+blue_region=cv2.inRange(hsv_img, blue_LL, blue_UL)
+
+# red houses (double range reqd because red lies on both ends of hsv colour spectrum- needed help with fining ranges and specially with red)
+red_LL1=np.array([0, 120, 70])
+red_UL1=np.array([10, 255, 255])
+red_LL2=np.array([170, 120, 70])
+red_UL2=np.array([180, 255, 255])
+red_region=cv2.inRange(hsv_img, red_LL1, red_UL1) + cv2.inRange(hsv_img, red_LL2, red_UL2)
+
+cv2.imshow('Burnt Grass',brown_region)
+cv2.imshow('Green Grass',green_region)
+cv2.imshow('Blue Houses',blue_region)
+cv2.imshow('Red Houses',red_region)
+cv2.waitKey(0)
+
+# had to take help online for this define function ,haven't understood it properly yet, especially the ret_ext or chain approx functions
+def count_contours(filtered_img):
+    contours, = cv2.findContours(filtered_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    return len(contours)
+
+burnt=count_contours(brown_region)
+green=count_contours(green_region)
+blueHuts=count_contours(blue_region)
+redHuts=count_contours(red_region)
+
+print("Houses on burnt grass:",burnt)
+print("Houses on green grass:",green)
+print("Priority of blue houses:",blueHuts)
+print("Priority of red houses:",redHuts*2)
